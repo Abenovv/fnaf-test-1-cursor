@@ -1,0 +1,97 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Orbitron:wght@500;700&family=Press+Start+2P&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100%;
+  overflow-x: hidden;
+  background: #050508;
+  font-family: 'JetBrains Mono', monospace;
+  color: #e4e4e7;
+}
+
+.font-display {
+  font-family: 'Orbitron', sans-serif;
+}
+
+.pixel-crisp {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* Modern hub */
+.hub-bg {
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(124, 58, 237, 0.25), transparent),
+    radial-gradient(ellipse 60% 40% at 100% 100%, rgba(219, 39, 119, 0.12), transparent),
+    #050508;
+}
+
+.hub-card {
+  --accent: #8b5cf6;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  padding: 1.5rem;
+  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+
+.hub-card:hover {
+  border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+}
+
+.hub-panel {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  background: rgba(12, 12, 18, 0.92);
+  backdrop-filter: blur(20px);
+}
+
+.hub-btn {
+  border: 1px solid rgba(139, 92, 246, 0.5);
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.25), rgba(219, 39, 119, 0.15));
+  padding: 0.6rem 1.4rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  color: #e9d5ff;
+  transition: all 0.15s;
+}
+
+.hub-btn:hover {
+  border-color: #a78bfa;
+  box-shadow: 0 0 24px rgba(139, 92, 246, 0.35);
+}
+
+.hub-btn-secondary {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  background: transparent;
+  padding: 0.6rem 1.4rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: #71717a;
+  transition: color 0.15s;
+}
+
+.hub-btn-secondary:hover {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.2);
+}
