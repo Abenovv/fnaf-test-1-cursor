@@ -4,7 +4,7 @@
  * All geometry, lighting and materials are defined here.
  */
 
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.168.0/build/three.module.js';
+import * as THREE from 'three';
 import { GameConfig }           from '../config/GameConfig.js';
 import { EventSystem, Events }  from '../core/EventSystem.js';
 import { RendererManager }      from './RendererManager.js';

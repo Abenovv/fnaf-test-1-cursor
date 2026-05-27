@@ -670,7 +670,7 @@ class UIManagerClass {
   }
 
   _on(id, handler, root = document) {
-    const el = root.getElementById(id);
+    const el = root.querySelector?.(`#${id}`) ?? document.getElementById(id);
     if (el) el.addEventListener('click', handler);
   }
 

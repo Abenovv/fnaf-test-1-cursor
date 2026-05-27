@@ -3,7 +3,7 @@
  * Owns the THREE.WebGLRenderer instance and handles resize / DPR adaptation.
  */
 
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.168.0/build/three.module.js';
+import * as THREE from 'three';
 import { GameConfig }          from '../config/GameConfig.js';
 import { SettingsManager }     from '../core/SettingsManager.js';
 import { EventSystem, Events } from '../core/EventSystem.js';

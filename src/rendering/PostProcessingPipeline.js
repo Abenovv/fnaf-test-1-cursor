@@ -8,19 +8,26 @@
  * All subtle, physically restrained as per production spec.
  */
 
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.168.0/build/three.module.js';
+import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+import { FXAAShader } from 'three/addons/shaders/FXAAShader.js';
 import { GameConfig }           from '../config/GameConfig.js';
 import { SettingsManager }      from '../core/SettingsManager.js';
 import { EventSystem, Events }  from '../core/EventSystem.js';
-
-// Three.js addon imports via CDN
-const BASE = 'https://cdn.jsdelivr.net/npm/three@0.168.0/examples/jsm';
 
 class PostProcessingPipelineClass {
   constructor() {
     this._composer     = null;
     this._analogPass   = null;
     this._bloomPass    = null;
+    this._fxaaPass     = null;
+    this._renderer     = null;
+    this._scene        = null;
+    this._camera       = null;
+    this._useFallback  = false;
     this._glitchActive = false;
     this._glitchTimer  = 0;
     this._time         = 0;
@@ -32,59 +39,56 @@ class PostProcessingPipelineClass {
    * @param {THREE.Camera}        camera
    */
   async init(renderer, scene, camera) {
-    const [
-      { EffectComposer },
-      { RenderPass },
-      { UnrealBloomPass },
-      { ShaderPass },
-      { FXAAShader },
-    ] = await Promise.all([
-      import(`${BASE}/postprocessing/EffectComposer.js`),
-      import(`${BASE}/postprocessing/RenderPass.js`),
-      import(`${BASE}/postprocessing/UnrealBloomPass.js`),
-      import(`${BASE}/postprocessing/ShaderPass.js`),
-      import(`${BASE}/shaders/FXAAShader.js`),
-    ]);
+    this._renderer = renderer;
+    this._scene    = scene;
+    this._camera   = camera;
 
-    const w = window.innerWidth;
-    const h = window.innerHeight;
+    try {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
 
-    this._composer = new EffectComposer(renderer);
+      this._composer = new EffectComposer(renderer);
 
-    // 1. Standard render pass
-    this._composer.addPass(new RenderPass(scene, camera));
+      // 1. Standard render pass
+      this._composer.addPass(new RenderPass(scene, camera));
 
-    // 2. Bloom — restrained, subtle glow on emissive objects
-    const cfg = GameConfig.POST;
-    this._bloomPass = new UnrealBloomPass(
-      new THREE.Vector2(w, h),
-      cfg.BLOOM_STRENGTH,
-      cfg.BLOOM_RADIUS,
-      cfg.BLOOM_THRESHOLD
-    );
-    this._composer.addPass(this._bloomPass);
+      // 2. Bloom — restrained, subtle glow on emissive objects
+      const cfg = GameConfig.POST;
+      this._bloomPass = new UnrealBloomPass(
+        new THREE.Vector2(w, h),
+        cfg.BLOOM_STRENGTH,
+        cfg.BLOOM_RADIUS,
+        cfg.BLOOM_THRESHOLD
+      );
+      this._composer.addPass(this._bloomPass);
 
-    // 3. FXAA anti-aliasing
-    const fxaa = new ShaderPass(FXAAShader);
-    fxaa.uniforms['resolution'].value.set(1 / w, 1 / h);
-    this._fxaaPass = fxaa;
-    this._composer.addPass(fxaa);
+      // 3. FXAA anti-aliasing
+      const fxaa = new ShaderPass(FXAAShader);
+      fxaa.uniforms['resolution'].value.set(1 / w, 1 / h);
+      this._fxaaPass = fxaa;
+      this._composer.addPass(fxaa);
 
-    // 4. Analog Horror composite pass (custom shader)
-    this._analogPass = new ShaderPass(this._buildAnalogShader());
-    this._composer.addPass(this._analogPass);
+      // 4. Analog Horror composite pass (custom shader)
+      this._analogPass = new ShaderPass(this._buildAnalogShader());
+      this._composer.addPass(this._analogPass);
 
-    // Handle resize
-    EventSystem.on('renderer:resize', ({ width, height }) => {
-      this._composer.setSize(width, height);
-      this._fxaaPass.uniforms['resolution'].value.set(1 / width, 1 / height);
-    });
+      // Handle resize
+      EventSystem.on('renderer:resize', ({ width, height }) => {
+        this._composer.setSize(width, height);
+        this._fxaaPass.uniforms['resolution'].value.set(1 / width, 1 / height);
+      });
 
-    // Glitch events
-    EventSystem.on(Events.SCREEN_GLITCH,   () => this._triggerGlitch());
-    EventSystem.on(Events.LIGHT_FLICKER,   () => this._triggerGlitch(0.3));
-    EventSystem.on(Events.CAMERA_SWITCHED, () => this._triggerGlitch(0.5));
-    EventSystem.on(Events.SETTINGS_CHANGED, ({ key, value }) => this._onSettingChanged(key, value));
+      // Glitch events
+      EventSystem.on(Events.SCREEN_GLITCH,   () => this._triggerGlitch());
+      EventSystem.on(Events.LIGHT_FLICKER,   () => this._triggerGlitch(0.3));
+      EventSystem.on(Events.CAMERA_SWITCHED, () => this._triggerGlitch(0.5));
+      EventSystem.on(Events.SETTINGS_CHANGED, ({ key, value }) => this._onSettingChanged(key, value));
+
+      this._useFallback = false;
+    } catch (err) {
+      console.warn('[PostProcessingPipeline] Falling back to direct render:', err);
+      this._useFallback = true;
+    }
   }
 
   /**
@@ -106,6 +110,12 @@ class PostProcessingPipelineClass {
    * @param {number} delta
    */
   render(delta) {
+    if (this._useFallback) {
+      if (this._renderer && this._scene && this._camera) {
+        this._renderer.render(this._scene, this._camera);
+      }
+      return;
+    }
     if (!this._composer) return;
     this._time += delta;
 

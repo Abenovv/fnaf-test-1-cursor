@@ -4,7 +4,7 @@
  * and GLTF/GLB models via Three.js loaders.
  */
 
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.168.0/build/three.module.js';
+import * as THREE from 'three';
 import { EventSystem, Events } from './EventSystem.js';
 
 /** @enum {string} */
@@ -146,9 +146,7 @@ class ResourceManagerClass {
 
       case AssetType.MODEL: {
         // Dynamically import GLTFLoader only when models are needed
-        const { GLTFLoader } = await import(
-          'https://cdn.jsdelivr.net/npm/three@0.168.0/examples/jsm/loaders/GLTFLoader.js'
-        );
+        const { GLTFLoader } = await import('three/addons/loaders/GLTFLoader.js');
         const loader = new GLTFLoader();
         return new Promise((resolve, reject) => loader.load(desc.url, resolve, undefined, reject));
       }

@@ -4,7 +4,7 @@
  * Includes cinematic head-bob, inertia, and smooth sway.
  */
 
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.168.0/build/three.module.js';
+import * as THREE from 'three';
 import { GameConfig }           from '../config/GameConfig.js';
 import { EventSystem, Events }  from '../core/EventSystem.js';
 import { SettingsManager }      from '../core/SettingsManager.js';

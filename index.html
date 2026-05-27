@@ -146,6 +146,16 @@
     </div>
   </div>
 
+  <!-- Three.js import map (required for post-processing addons) -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.168.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.168.0/examples/jsm/"
+    }
+  }
+  </script>
+
   <!-- Game entry point (ES module) -->
   <script type="module" src="./src/main.js"></script>
 </body>

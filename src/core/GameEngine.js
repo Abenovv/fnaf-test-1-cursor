@@ -6,7 +6,7 @@
  * logic that belongs inside a system. Each system is independently testable.
  */
 
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.168.0/build/three.module.js';
+import * as THREE from 'three';
 
 import { GameConfig }           from '../config/GameConfig.js';
 import { EventSystem, Events }  from './EventSystem.js';
@@ -44,11 +44,8 @@ export const GameState = Object.freeze({
  * Lazy assets are loaded on-demand during gameplay.
  */
 const PRELOAD_MANIFEST = [
-  // Textures
-  { id: 'tex_noise',    url: 'assets/textures/noise.png',       type: AssetType.TEXTURE },
-  { id: 'tex_vignette', url: 'assets/textures/vignette.png',    type: AssetType.TEXTURE },
-  // JSON data
-  { id: 'night_data',   url: 'assets/data/nights.json',         type: AssetType.JSON, lazy: true },
+  // Optional assets — add here when real files exist; lazy-loaded by default
+  { id: 'night_data', url: 'assets/data/nights.json', type: AssetType.JSON, lazy: true },
 ];
 
 export class GameEngine {
@@ -94,7 +91,7 @@ export class GameEngine {
     await SceneManager.init();
 
     // 9. Post-processing — requires renderer + scene + camera
-    PostProcessingPipeline.init(
+    await PostProcessingPipeline.init(
       RendererManager.renderer,
       SceneManager.scene,
       CameraSystem.activeCamera
